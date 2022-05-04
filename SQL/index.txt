@@ -1,0 +1,3 @@
+This folder contains resources for SQL.
+
+SQL should be you're top priority while preparing for a data related profile!
