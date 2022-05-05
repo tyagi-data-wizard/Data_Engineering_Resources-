@@ -1,0 +1,9 @@
+These are some amazing websites where you can hone your SQL Skills : 
+
+Hackerrank  - https://www.hackerrank.com/domains/sql
+SQLZoo - https://sqlzoo.net/wiki/SQL_Tutorial
+SQL Fiddle - http://sqlfiddle.com/
+DB<>Fiddle - https://dbfiddle.uk/
+SQL Bolt  - https://sqlbolt.com/
+
+While there are a lot more such websites available on the net, these should be sufficient for you to practice sql. 
