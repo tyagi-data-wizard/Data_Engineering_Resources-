@@ -196,6 +196,13 @@ Now nn know that dn1 is down, not it will check where is the copy of the data st
 Since, we now have only 2 replicas of the data that's stored in dn1(data packet - b0) but our duplication factor = 3 (i.e we need to have 3 replicas of a particular data), NN will now order either of dn4, dn5 to make one more replica in some other dn, lets say in dn2.
 What if the dn that went down , dn1, now comes online ? -> now we would have 4 replicas of the same data, so NN will get this info as dn1 would start pinging the NN again, but NN would not consider the data in dn1, and the data blocks inside dn1 will be invalidated, so the new dn, dn2 dn4 dn5, would be considered.
 
+	-> This means that HDFS will take care of how to store blocks in nodes in a cluster
+	
+		- SLAVE NODES
+		- Data Packet stored primarily
+		
+		- Data backup via data replication/duplication
+
 
 RETRIEVEING THE DATA
 
