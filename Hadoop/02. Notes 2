@@ -1,0 +1,68 @@
+2nd Video : 
+
+
+Name Node VS Secondary Name Node 
+
+In Hadoop it is advisable to store few large files as much as possible instead of many small files. 
+	Why?    -> because more the number of files more the no. of entries in the register of the NN, and it would become unnecessarily heavy e.g. one 1 gb file will have lower no. if entries in      the NN register than 1024 files of 1mb, so therefore its not advisable to store small files in Hadoop. 
+	
+So, because register is important for our hadoop NN should have a large RAM(~256 gb).
+
+This register is nothing but a file containing meta data, and there are two types of registers in the NN :
+	- fs Image  (Read Only in NN)
+	- Edit Log 
+
+Every time the NN is started/refreshed it would create these two files, and will load the previous data of these two files in the NN RAM and then both the files are empty. 
+
+Edit Log - It would contain the log or information of each and every command executed in hadoop (all the cmd related to -fs, i.e. data/file store remove, etc; not every cmd basically)
+		With time this log would grow really big.
+		
+Now since edit log is very big and whenever the NN is refreshed it would take the previous data in both fs Image and Edit Log and do some processing to calculate lets say the number of files present in the hadoop cluster., so it would take a long time to do this calculation, so therefore we have Secondary Name Node (SNN).
+
+So, we have two files fs Image and Edit Log  :
+
+	- On the first run both the files are empty
+									Fs Image	Edit Log
+									0	0
+	- Then as the process starts, edit log will start saving entries in it, lets say the number of files added, deleted, etc from the hadoop cluster
+									Fs Image	Edit Log
+									0	10 added (+)
+								
+	- Then at some point of time, Check Point in Hadoop(default interval is 1 hr/ or 1 million transactions), the SNN will fetch the fs Image and Edit Log file from the NN and do some processing/calculation on its data.
+		○ The fs Image will contain the data of how many files were present and edit log will be used to see how many files were added or deleted from the last CheckPoint.
+
+									Fs Image	Edit Log
+									10	0
+		Meanwhile there would be a new Edit Log created in the NN and the ongoing transaction would be noted down there.
+									
+									
+	- Now this information of fs Image will be sent to NN
+	- Lets say now the NN before the second check point looks  like this :
+									Fs Image	Edit Log
+									10	2 added(+), 3 removed(-)
+									
+	- Now, this data will be copied to SNN, meanwhlie a new edit log would be started in NN, now the SNN would do the cacl of how many files are present in current hadoop cluster using edit log's info 
+									Fs Image	Edit Log
+									10	2 added(+), 3 removed(-)
+									Fs Image = 10+2-3 =9 files
+									
+	- So, this fs Image gets copied to our NN and it looks like this : 
+
+									Fs Image	Edit Log
+									9	……
+									
+
+	so this way SNN does our task easier and now the NN would not have to do the long calculation every time its restarted since SNN does our task in between.
+
+-> There's one more use of SNN, in Hadoop 1.x,  that if the NN fails/ gets offline we would have the recent fs Image of the last check point stored in our SNN.
+
+You can change the default CheckPoint interval using this configuration - dfs.namenode.checkpoint.peroid /  dfs.namenode.checkpoint.transaction 
+                                                                                                                                    this config is present in hdfsSite.xml (there are many site files containing many configuration)
+
+Limitation of Hadoop 1.x : 
+	- NN is a single point of failure, i.e. the data that NN contains is stored only in NN and if NN fails that data is also gone.
+	- Only able to accept Map Reduce Job framework, even if you write Hive Query you had to think it in terms of mapper phase and reducer phase, not able to run Spark.
+	- Map Reduce was a resource negotiator. M-R is a framework to process the data and shouldn't be used as a resource negotiator i.e. if I had a clauster and wanted to submit a hadoop job
+	Then where the job should be schedul8ed, who should schedule it etc were all monitored by M-R, it would talk to Job Tracker and so on, but M-R was the main thing here.  
+
+
