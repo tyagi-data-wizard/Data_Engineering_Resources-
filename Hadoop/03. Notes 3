@@ -1,0 +1,45 @@
+Hadoop 2,3 Architecture (YARN)
+
+In Hadoop 2.x there would also be some "daemons" installed along with hadoop :
+	- Name Node
+	- Secondary Name Node
+	- Node Manager
+	- Resource Manager
+	- Data Node
+
+
+
+Client (Edge Node ) - Not a part of the Hadoop Cluster, but is connected to hadoop and this is from where end user communicate via commands to Hadoop
+
+
+RESOURCE MANAGER(RM) is in Master, and has two components :
+	- Scheduler
+	- Application Manager
+
+Suppose client submits a job to run job you need some resources, so this scheduler will help us to negotiate resources and tell us which slave(resources/data node) to run the job in and which one has the relevant data. 
+Scheduler : 1. Helps to allocate/arrange resource to the application 
+		2.Does not monitor the progress of the job.
+
+Now Resource Manager says we have to run one application/job on what resources job has to run Scheduler had already told us, so now application manager will launch an Application Master 
+in slave node and this app master is ideally a program that will monitor the application(each submitted job) that is going to run in slave nodes. 
+	- Every time we write the query hadoop jar submit , what it does is it creates application master launched by application manager.
+	- Application Master is like a class monitor 
+	- Application Master needs a container (kind of a virtual machine) to run the job and this container is a JVM Environment.
+	- There will be only one Application Master for one job/application but there can be multiple containers in different slave nodes that will be taken care by that single Application Master only.
+	- Now these containers, controlled by App Master, will contain either of one M-R jobs, i.e., either it would have a Map job or a Reduce job.
+	- Application Manager takes regular updated from App Master regarding a job.
+	- Re-launches a job and app master in case of any failure. 
+	(-> Let's say if a job fails, so the Application Master for the failed job would be deleted/killed and the Application Manager would launch another Application Master to re run the same job and it would create its new containers as well.)
+	- Application Master would ask which all resources are available from Resource Manager which the Scheduler has allocated.
+	- Application  Master also in turn updates RM about the job updates as well.
+	
+	
+	
+NODE MANAGER(NM) is present in each Slave Node:
+	- It will have information about the whole node where it is present. (what are the specs of the node, how many jobs are running, how many processors are engaged, etc.)
+	- It passes this information to Resource Manager, so that RM knows the status of a particular resource and if it is in healthy state or not.
+
+
+HADOOP 2, 3 vs HADDOP 1
+	- Highly available Resource Manager
+	- Highly available Name Node
